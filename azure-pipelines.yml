@@ -18,8 +18,8 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: dir src\*.csproj /s /b
-  displayName: 'List all .csproj files'
+    script: dotnet build src/Web/Web.csproj
+  displayName: 'Build Web.csproj'
 
 - task: CmdLine@2
   inputs:
