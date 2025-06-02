@@ -4,24 +4,67 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- main
+- main  # or your default branch
 
 pool:
   vmImage: 'windows-latest'
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.0.x'          # ✅ Use .NET 8.0
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+variables:
+  buildConfiguration: 'Release'
 
-- task: CmdLine@2
-  inputs:
-    script: dotnet build src/Web/Web.csproj
-  displayName: 'Build Web.csproj'
+stages:
+# 🔍 Step 1: SonarCloud Analysis Stage
+- stage: CodeAnalysis
+  displayName: 'SonarCloud Analysis'
+  jobs:
+    - job: SonarScan
+      displayName: 'Run SonarCloud Scan'
+      steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '7.0.x'  # or your required .NET SDK version
 
-- task: CmdLine@2
-  inputs:
-    script: dotnet build src/Web/Web.csproj
-  displayName: 'Build Web.csproj'
+        - task: SonarCloudPrepare@1
+          inputs:
+            SonarCloud: 'SonarCloud-ServiceConnection'  # Service connection name in Azure DevOps
+            organization: 'siripurapushivani'  # Your SonarCloud org
+            scannerMode: 'MSBuild'
+            projectKey: 'Skillup-Capstone-Project-Shivani'
+            projectName: 'Skillup-Capstone-Project-Shivani'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: '**/*.sln'
+            arguments: '--configuration $(buildConfiguration)'
+
+        - task: SonarCloudAnalyze@1
+
+        - task: SonarCloudPublish@1
+          inputs:
+            pollingTimeoutSec: '300'
+
+# 🚀 Step 2: Deployment to Pre-Production (PP)
+- stage: DeployPP
+  displayName: 'Deploy to Pre-Production'
+  dependsOn: CodeAnalysis
+  condition: succeeded()
+  jobs:
+    - job: Deploy
+      displayName: 'Deploy to PP'
+      steps:
+        - script: echo "Deploying to Pre-Production..."
+          displayName: 'Stub: Deployment Script Here'
+
+# (Optional) 🚀 Step 3: Deployment to Production (PROD)
+- stage: DeployProd
+  displayName: 'Deploy to Production'
+  dependsOn: DeployPP
+  condition: succeeded()
+  jobs:
+    - job: Deploy
+      displayName: 'Deploy to PROD'
+      steps:
+        - script: echo "Deploying to Production..."
+          displayName: 'Stub: Deployment Script Here'
