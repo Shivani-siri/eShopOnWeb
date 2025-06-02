@@ -4,6 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 # ASP.NET
+# ASP.NET Pipeline with SonarCloud and Deployment Stages
+
 trigger:
 - main
 
@@ -58,14 +60,24 @@ stages:
         - script: echo "Deploying to Pre-Production..."
           displayName: 'Stub: Deployment Script Here'
 
-# 🚀 Step 3: Deploy to Production
-- stage: DeployProd
+# 🚀 Step 3: Deploy to Production with Environment and Release Gates
+- stage: Deploy_PROD
   displayName: 'Deploy to Production'
   dependsOn: DeployPP
   condition: succeeded()
   jobs:
-    - job: DeployProd
-      displayName: 'Deploy to PROD'
-      steps:
-        - script: echo "Deploying to Production..."
-          displayName: 'Stub: Deployment Script Here'
+    - deployment: DeployProd
+      displayName: 'Deploy to PROD Environment'
+      environment: 'PROD'  # This ties to the environment you created in Azure DevOps
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: UseDotNet@2
+                displayName: 'Install .NET SDK'
+                inputs:
+                  packageType: 'sdk'
+                  version: '8.0.x'
+
+              - script: echo "Deploying to Production..."
+                displayName: 'Stub: Replace with your deployment script'
