@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- main  # or your default branch
+- main  # Trigger the pipeline on pushes to the 'main' branch
 
 pool:
   vmImage: 'windows-latest'
@@ -13,7 +13,8 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-# 🔍 Step 1: SonarCloud Analysis Stage
+
+# 🔍 Step 1: SonarCloud Code Analysis
 - stage: CodeAnalysis
   displayName: 'SonarCloud Analysis'
   jobs:
@@ -23,12 +24,12 @@ stages:
         - task: UseDotNet@2
           inputs:
             packageType: 'sdk'
-            version: '7.0.x'  # or your required .NET SDK version
+            version: '7.0.x'
 
         - task: SonarCloudPrepare@1
           inputs:
-            SonarCloud: 'SonarCloud-ServiceConnection'  # Service connection name in Azure DevOps
-            organization: 'siripurapushivani'  # Your SonarCloud org
+            SonarCloud: 'SonarCloud-ServiceConnection'  # Must match your service connection name
+            organization: 'siripurapushivani'            # Your SonarCloud org key
             scannerMode: 'MSBuild'
             projectKey: 'Skillup-Capstone-Project-Shivani'
             projectName: 'Skillup-Capstone-Project-Shivani'
@@ -45,7 +46,7 @@ stages:
           inputs:
             pollingTimeoutSec: '300'
 
-# 🚀 Step 2: Deployment to Pre-Production (PP)
+# 🚀 Step 2: Deploy to Pre-Production
 - stage: DeployPP
   displayName: 'Deploy to Pre-Production'
   dependsOn: CodeAnalysis
@@ -57,7 +58,7 @@ stages:
         - script: echo "Deploying to Pre-Production..."
           displayName: 'Stub: Deployment Script Here'
 
-# (Optional) 🚀 Step 3: Deployment to Production (PROD)
+# 🚀 Step 3: Deploy to Production (optional)
 - stage: DeployProd
   displayName: 'Deploy to Production'
   dependsOn: DeployPP
