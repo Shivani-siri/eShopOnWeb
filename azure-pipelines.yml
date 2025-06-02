@@ -24,26 +24,30 @@ stages:
         - task: UseDotNet@2
           displayName: 'Install .NET 8.0 SDK'
           inputs:
-            packageType: 'sdk'
+            packageType: sdk
             version: '8.0.x'
 
         - task: SonarCloudPrepare@1
           inputs:
-            SonarCloud: 'SonarCloud-ServiceConnection'  # Must match your service connection name
-            organization: 'siripurapushivani'            # Your SonarCloud org key
+            SonarCloud: 'SonarCloud-ServiceConnection'  # Your actual service connection name
+            organization: 'siripurapushivani'            # Your SonarCloud organization key
             scannerMode: 'MSBuild'
             projectKey: 'Skillup-Capstone-Project-Shivani'
             projectName: 'Skillup-Capstone-Project-Shivani'
 
         - task: DotNetCoreCLI@2
+          displayName: 'Build Solution'
           inputs:
             command: 'build'
             projects: '**/*.sln'
             arguments: '--configuration $(buildConfiguration)'
 
         - task: SonarCloudAnalyze@1
+          displayName: 'Run SonarCloud Analysis'
 
+        # Optional: Quality gate publishing. You can remove it if using new UI.
         - task: SonarCloudPublish@1
+          displayName: 'Publish SonarCloud Quality Gate'
           inputs:
             pollingTimeoutSec: '300'
 
@@ -53,19 +57,19 @@ stages:
   dependsOn: CodeAnalysis
   condition: succeeded()
   jobs:
-    - job: Deploy
+    - job: DeployPP
       displayName: 'Deploy to PP'
       steps:
         - script: echo "Deploying to Pre-Production..."
           displayName: 'Stub: Deployment Script Here'
 
-# 🚀 Step 3: Deploy to Production (optional)
+# 🚀 Step 3: Deploy to Production
 - stage: DeployProd
   displayName: 'Deploy to Production'
   dependsOn: DeployPP
   condition: succeeded()
   jobs:
-    - job: Deploy
+    - job: DeployProd
       displayName: 'Deploy to PROD'
       steps:
         - script: echo "Deploying to Production..."
