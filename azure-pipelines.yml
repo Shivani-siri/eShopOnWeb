@@ -3,8 +3,9 @@
 # Add steps that publish symbols, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
+# ASP.NET
 trigger:
-- main  # Trigger the pipeline on pushes to the 'main' branch
+- main
 
 pool:
   vmImage: 'windows-latest'
@@ -29,8 +30,8 @@ stages:
 
         - task: SonarCloudPrepare@1
           inputs:
-            SonarCloud: 'SonarCloud-ServiceConnection'  # Your actual service connection name
-            organization: 'siripurapushivani'            # Your SonarCloud organization key
+            SonarCloud: 'SonarCloud-ServiceConnection'
+            organization: 'siripurapushivani'
             scannerMode: 'MSBuild'
             projectKey: 'Skillup-Capstone-Project-Shivani'
             projectName: 'Skillup-Capstone-Project-Shivani'
@@ -44,12 +45,6 @@ stages:
 
         - task: SonarCloudAnalyze@1
           displayName: 'Run SonarCloud Analysis'
-
-        # Optional: Quality gate publishing. You can remove it if using new UI.
-        - task: SonarCloudPublish@1
-          displayName: 'Publish SonarCloud Quality Gate'
-          inputs:
-            pollingTimeoutSec: '300'
 
 # 🚀 Step 2: Deploy to Pre-Production
 - stage: DeployPP
